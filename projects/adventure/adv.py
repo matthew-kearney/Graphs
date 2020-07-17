@@ -86,11 +86,57 @@ def bfs(starting_room, next_room,room_paths):
     # NOTES
     # startingroom - id visa versa for next room
     
+    # create lsit of vistited helps bfs run faster 
     visited = set()
+    # queue to explore room order
+    # bfs bc first in first out
     room_queue = Queue()
+    # to queue the direction travel
     dir_queue = Queue()
+    
+    # queue start at starting room
     room_queue.enqueue([starting_room])
+    # blank bc havent moved yet
     dir_queue.enqueue([])
+    
+    # while there are rooms in queue
+    while room_queue.size() > 0:
+        # gets next value in queue
+        vertex_path = room_queue.dequeue()
+        # gets next direcetion to travel in queue
+        dir_path = dir_queue.dequeue()
+        # last room in room_path taken from queue(newest explored room)
+        vertex = vertex_path[-1]
+        # if not vistited add vertex
+        if vertex not in visited:
+            visited.add(vertex)
+            # if that new room is the right path
+            if vertex == next_room:
+                return dir_path
+            # for each direction a room has mapped to it in the room_path dict
+            for direction in room_paths[vertex]:
+                # copy both queues
+                path_copy = vertex_path.copy()
+                dirpath_copy = dir_path.copy()
+                # adding the newest room and direction to the copied room_path route 
+                path_copy.append(room_paths[vertex][direction])
+                dirpath_copy.append(direction)
+                room_queue.enqueue(path_copy)
+                dir_queue.enqueue(dirpath_copy)
+
+# create anser list of TP
+traversal_path = []
+# set player in starting room
+player = Player(world.starting_room)
+# use recursion func to visit all rooms
+room_dict,visited = room_recursive(world.starting_room,room_graph)
+
+# for each room in the visit list 
+# set path as the shortest pathway between two rooms
+# add path of the nav between two rooms to the TP list 
+for i in range(len(visited)-1):
+    path = bfs(visited[i],visited[i+1],room_dict)
+    traversal_path.extend(path)
     
     
 
