@@ -1,6 +1,7 @@
 from room import Room
 from player import Player
 from world import World
+from utilities import Queue
 
 import random
 from ast import literal_eval
@@ -27,8 +28,71 @@ player = Player(world.starting_room)
 
 # Fill this out with directions to walk
 # traversal_path = ['n', 'n']
-traversal_path = []
+# traversal_path = []
 
+# NOTES
+'''
+figure out how the rooms are connected and which ones are connected together
+so check rooms connected to the starting room then recursivly map the graph until all rooms
+are visited 
+'''
+
+def room_recursive(starting_room,room_graph,room_paths=None,visited=None):
+    
+    # FOR: how rooms are connected together.
+    # NOTES
+    # starting_room = node evaluating neighbors of cur room
+    # room_graph = gen world we are eploring
+    # room_paths = The linked paths that a room can lead to, default value of None. per room during R
+    # visited = The list of rooms that have been visited 
+    
+    #no room has been visited create empty list
+    if visited is None:
+        visited = []
+    # create a set for room paths
+    if room_paths is None:
+        room_paths = {}
+    #declare the current room's ID
+    room_id = starting_room.id
+
+    # if not in the room path add room id to visited list
+    if room_id not in room_paths.keys():
+        visited.append(room_id)
+        #in the pathing dictionary
+        #add this room as a key
+        room_paths[room_id] = {}
+        #make directions for that starting room.
+        directions = starting_room.get_exits()
+        
+        for dir in directions:
+            #update path dict at the key of the room ID
+            #attach direction, and ID of connected room
+            room_paths[room_id].update({dir:starting_room.get_room_in_direction(dir).id})
+        #shuffle the directions a room has to have
+        directions = starting_room.get_exits()
+        random.shuffle(directions)
+        #for all rooms that have a room or more not visited vistit it
+        for direction in directions:
+            new_room = starting_room.get_room_in_direction(direction)
+            #recursively apply the same logic for the next room and so on
+            room_recursive(new_room,room_graph,room_paths,visited)
+        if len(room_paths) == len(room_graph):
+            return room_paths,visited
+        
+def bfs(starting_room, next_room,room_paths):
+    
+    # breadth first search
+    # for the shortest path of starting room to next room
+    # NOTES
+    # startingroom - id visa versa for next room
+    
+    visited = set()
+    room_queue = Queue()
+    dir_queue = Queue()
+    room_queue.enqueue([starting_room])
+    dir_queue.enqueue([])
+    
+    
 
 
 # TRAVERSAL TEST
@@ -51,12 +115,12 @@ else:
 #######
 # UNCOMMENT TO WALK AROUND
 #######
-player.current_room.print_room_description(player)
-while True:
-    cmds = input("-> ").lower().split(" ")
-    if cmds[0] in ["n", "s", "e", "w"]:
-        player.travel(cmds[0], True)
-    elif cmds[0] == "q":
-        break
-    else:
-        print("I did not understand that command.")
+# player.current_room.print_room_description(player)
+# while True:
+#     cmds = input("-> ").lower().split(" ")
+#     if cmds[0] in ["n", "s", "e", "w"]:
+#         player.travel(cmds[0], True)
+#     elif cmds[0] == "q":
+#         break
+#     else:
+#         print("I did not understand that command.")
